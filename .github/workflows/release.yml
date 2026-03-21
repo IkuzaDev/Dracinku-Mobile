@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-android:
     name: Build Android
@@ -35,6 +38,7 @@ jobs:
         with:
           name: android-release
           path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
 
   build-ios:
     name: Build iOS
@@ -42,6 +46,11 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest-stable'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -51,14 +60,23 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install --repo-update
+
       - name: Build IPA (no codesign)
         run: flutter build ipa --release --no-codesign
+
+      - name: List IPA output (debug)
+        run: find build/ios -name "*.ipa"
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-release
           path: build/ios/ipa/*.ipa
+          if-no-files-found: error
 
   release:
     name: Create Release
@@ -69,11 +87,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: android-release
+          path: artifacts/android
 
       - name: Download iOS artifact
         uses: actions/download-artifact@v4
         with:
           name: ios-release
+          path: artifacts/ios
+
+      - name: List artifacts (debug)
+        run: find artifacts -type f
 
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v1
@@ -81,8 +104,8 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           files: |
-            app-release.apk
-            *.ipa
+            artifacts/android/app-release.apk
+            artifacts/ios/*.ipa
           draft: false
           prerelease: false
         env:
