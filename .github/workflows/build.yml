@@ -88,15 +88,16 @@ jobs:
 
       - name: Install iOS Simulator
         run: |
-          xcrun simctl list devices available | head -20
-          if ! xcrun simctl list devices available | grep -q "iPhone"; then
-            xcodebuild -downloadPlatform iOS
-          fi
+          # Install iOS simulator components
+          sudo xcodebuild -runFirstLaunch
+          
+          # Check available simulators
+          xcrun simctl list devices available
 
       - name: Build iOS
         run: |
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
-            flutter build ipa --release --no-codesign
+            flutter build ipa --debug --no-codesign
           else
             flutter build ios --debug --no-codesign
           fi
