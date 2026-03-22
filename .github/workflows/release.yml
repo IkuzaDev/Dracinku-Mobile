@@ -31,7 +31,7 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -74,8 +74,13 @@ jobs:
       - name: Build iOS for simulator
         run: flutter build ios --simulator --no-codesign
 
+<<<<<<< HEAD
       - name: Build iOS for release
         run: flutter build ios --release --no-codesign
+=======
+      - name: Build xcarchive
+        run: flutter build ipa
+>>>>>>> fa9a9f4060bdac7c00ed4286198859ba8e85ed0c
 
       - name: Create ExportOptions.plist
         run: |
