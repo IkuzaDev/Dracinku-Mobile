@@ -63,6 +63,7 @@
 	<array>
 		<string>fetch</string>
 		<string>remote-notification</string>
+		<string>processing</string>
 	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
@@ -78,10 +79,5 @@
 	</array>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>DramaWave needs access to save downloaded videos to your photo library.</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>remote-notification</string>
-		<string>processing</string>
-	</array>
+</dict>
 </plist>

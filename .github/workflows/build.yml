@@ -86,12 +86,19 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Install iOS Simulator
+        run: |
+          xcrun simctl list devices available | head -20
+          if ! xcrun simctl list devices available | grep -q "iPhone"; then
+            xcodebuild -downloadPlatform iOS
+          fi
+
       - name: Build iOS
         run: |
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
-            flutter build ipa
+            flutter build ipa --release --no-codesign
           else
-            flutter build ios --simulator --no-codesign
+            flutter build ios --debug --no-codesign
           fi
 
       - name: Upload iOS artifact
