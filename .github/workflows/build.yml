@@ -98,7 +98,7 @@ jobs:
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
             flutter build ipa --release --no-codesign
           else
-            flutter build ios --debug --no-codesign
+            flutter build ios --debug --no-codesign --platform=ios-simulator
           fi
 
       - name: Upload iOS artifact
