@@ -66,7 +66,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
       return Scaffold(
         backgroundColor: const Color(0xFF0A0A0C),
         appBar: AppBar(backgroundColor: const Color(0xFF0A0A0C)),
-        body: Center(child: Text('Gagal memuat data', style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14))),
+        body: Center(child: Text('Gagal memuat data', style: TextStyle(color: Colors.white.withValues(alpha:0.4), fontSize: 14))),
       );
     }
 
@@ -129,9 +129,9 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
           onTap: () => Navigator.pop(context),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha:0.5),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+              border: Border.all(color: Colors.white.withValues(alpha:0.1), width: 1),
             ),
             child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
           ),
@@ -146,15 +146,15 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
               CachedNetworkImage(
                 imageUrl: cover,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => Container(color: const Color(0xFF18181B)),
-                errorWidget: (_, __, ___) => Container(color: const Color(0xFF18181B)),
+                placeholder: (_, _) => Container(color: const Color(0xFF18181B)),
+                errorWidget: (context, url, error) => Container(color: const Color(0xFF18181B)),
                 imageBuilder: (_, img) => Container(
                   decoration: BoxDecoration(image: DecorationImage(image: img, fit: BoxFit.cover)),
                   foregroundDecoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.black.withOpacity(0.3), const Color(0xFF0A0A0C)],
+                      colors: [Colors.transparent, Colors.black.withValues(alpha:0.3), const Color(0xFF0A0A0C)],
                       stops: const [0.0, 0.6, 1.0],
                     ),
                   ),
@@ -195,7 +195,9 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
     final chips = <_MetaChip>[];
     if (playCount != null) chips.add(_MetaChip(icon: Icons.star_rounded, label: playCount, iconColor: const Color(0xFFFBBF24)));
     if (chapterCount != null) chips.add(_MetaChip(label: '$chapterCount eps'));
-    for (final t in tags.take(3)) chips.add(_MetaChip(label: t, muted: true));
+    for (final t in tags.take(3)) {
+      chips.add(_MetaChip(label: t, muted: true));
+    }
 
     return Wrap(spacing: 6, runSpacing: 6, children: chips);
   }
@@ -229,7 +231,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
               label: const Text('Terakhir', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
-                side: BorderSide(color: Colors.white.withOpacity(0.12), width: 1),
+                side: BorderSide(color: Colors.white.withValues(alpha:0.12), width: 1),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 backgroundColor: const Color(0xFF18181B),
               ),
@@ -250,14 +252,14 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
       children: [
         _SectionLabel(text: 'Sinopsis'),
         const SizedBox(height: 8),
-        Text(displayText, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13, height: 1.6)),
+        Text(displayText, style: TextStyle(color: Colors.white.withValues(alpha:0.5), fontSize: 13, height: 1.6)),
         if (synopsis.length > maxLen) ...[
           const SizedBox(height: 6),
           GestureDetector(
             onTap: () => setState(() => _descExpanded = !_descExpanded),
             child: Text(
               _descExpanded ? 'Tampilkan lebih sedikit ↑' : 'Baca selengkapnya ↓',
-              style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 12, fontWeight: FontWeight.w600),
+              style: TextStyle(color: Colors.white.withValues(alpha:0.35), fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -273,7 +275,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFF18181B),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
+          border: Border.all(color: Colors.white.withValues(alpha:0.08), width: 1),
         ),
         child: Row(
           children: [
@@ -281,21 +283,21 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
+                color: Colors.white.withValues(alpha:0.06),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.format_list_numbered_rounded, color: Colors.white.withOpacity(0.5), size: 18),
+              child: Icon(Icons.format_list_numbered_rounded, color: Colors.white.withValues(alpha:0.5), size: 18),
             ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('Daftar Episode', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-                Text('${_episodes.length} episodes tersedia', style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 11)),
+                Text('${_episodes.length} episodes tersedia', style: TextStyle(color: Colors.white.withValues(alpha:0.3), fontSize: 11)),
               ],
             ),
             const Spacer(),
-            Icon(Icons.chevron_right_rounded, color: Colors.white.withOpacity(0.25), size: 22),
+            Icon(Icons.chevron_right_rounded, color: Colors.white.withValues(alpha:0.25), size: 22),
           ],
         ),
       ),
@@ -306,7 +308,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
     return GestureDetector(
       onTap: () => setState(() => _showEpisodeSheet = false),
       child: Container(
-        color: Colors.black.withOpacity(0.7),
+        color: Colors.black.withValues(alpha:0.7),
         child: Align(
           alignment: Alignment.bottomCenter,
           child: GestureDetector(
@@ -321,7 +323,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(margin: const EdgeInsets.only(top: 10), width: 36, height: 4, decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(2))),
+                  Container(margin: const EdgeInsets.only(top: 10), width: 36, height: 4, decoration: BoxDecoration(color: Colors.white.withValues(alpha:0.15), borderRadius: BorderRadius.circular(2))),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 16, 16, 0),
                     child: Row(
@@ -332,18 +334,18 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
                             children: [
                               const Text('Daftar Episode', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800)),
                               const SizedBox(height: 2),
-                              Text('${_episodes.length} eps · $seriesTitle', style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+                              Text('${_episodes.length} eps · $seriesTitle', style: TextStyle(color: Colors.white.withValues(alpha:0.3), fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
                         IconButton(
                           onPressed: () => setState(() => _showEpisodeSheet = false),
-                          icon: Icon(Icons.close_rounded, color: Colors.white.withOpacity(0.4), size: 20),
+                          icon: Icon(Icons.close_rounded, color: Colors.white.withValues(alpha:0.4), size: 20),
                         ),
                       ],
                     ),
                   ),
-                  Container(margin: const EdgeInsets.only(top: 12), height: 0.5, color: Colors.white.withOpacity(0.06)),
+                  Container(margin: const EdgeInsets.only(top: 12), height: 0.5, color: Colors.white.withValues(alpha:0.06)),
                   Flexible(
                     child: GridView.builder(
                       padding: const EdgeInsets.all(16),
@@ -412,10 +414,10 @@ class _EpisodeCell extends StatelessWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 decoration: BoxDecoration(
-                  color: downloaded ? Colors.white.withOpacity(0.08) : const Color(0xFF18181B),
+                  color: downloaded ? Colors.white.withValues(alpha:0.08) : const Color(0xFF18181B),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: downloaded ? Colors.white.withOpacity(0.2) : Colors.white.withOpacity(0.07),
+                    color: downloaded ? Colors.white.withValues(alpha:0.2) : Colors.white.withValues(alpha:0.07),
                     width: 1,
                   ),
                 ),
@@ -425,7 +427,7 @@ class _EpisodeCell extends StatelessWidget {
                       child: Text(
                         '${index + 1}',
                         style: TextStyle(
-                          color: downloaded ? Colors.white : Colors.white.withOpacity(0.5),
+                          color: downloaded ? Colors.white : Colors.white.withValues(alpha:0.5),
                           fontSize: 15,
                           fontWeight: FontWeight.w900,
                         ),
@@ -434,14 +436,14 @@ class _EpisodeCell extends StatelessWidget {
                     if (downloaded)
                       Positioned(
                         top: 4, right: 4,
-                        child: Icon(Icons.check_circle_rounded, size: 12, color: Colors.white.withOpacity(0.5)),
+                        child: Icon(Icons.check_circle_rounded, size: 12, color: Colors.white.withValues(alpha:0.5)),
                       )
                     else
                       Positioned(
                         bottom: 4, right: 4,
                         child: GestureDetector(
                           onTap: () => onDownload(episode),
-                          child: Icon(Icons.download_rounded, size: 14, color: Colors.white.withOpacity(0.2)),
+                          child: Icon(Icons.download_rounded, size: 14, color: Colors.white.withValues(alpha:0.2)),
                         ),
                       ),
                   ],
@@ -468,21 +470,21 @@ class _MetaChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: muted ? Colors.white.withOpacity(0.03) : Colors.white.withOpacity(0.07),
+        color: muted ? Colors.white.withValues(alpha:0.03) : Colors.white.withValues(alpha:0.07),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withOpacity(muted ? 0.05 : 0.08), width: 1),
+        border: Border.all(color: Colors.white.withValues(alpha:muted ? 0.05 : 0.08), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 13, color: iconColor ?? Colors.white.withOpacity(0.6)),
+            Icon(icon, size: 13, color: iconColor ?? Colors.white.withValues(alpha:0.6)),
             const SizedBox(width: 4),
           ],
           Text(
             label,
             style: TextStyle(
-              color: muted ? Colors.white.withOpacity(0.3) : Colors.white.withOpacity(0.65),
+              color: muted ? Colors.white.withValues(alpha:0.3) : Colors.white.withValues(alpha:0.65),
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
@@ -501,7 +503,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text.toUpperCase(),
-      style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.4),
+      style: TextStyle(color: Colors.white.withValues(alpha:0.3), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.4),
     );
   }
 }

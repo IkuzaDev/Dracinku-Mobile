@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/platform_provider.dart';
-import 'series_detail_screen.dart';
+//import 'series_detail_screen.dart';
 import 'main_layout.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -44,11 +44,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final platformProv = Provider.of<PlatformProvider>(context, listen: false);
+    final navigator = Navigator.of(context);
     final success = await auth.login(key);
 
     if (success && mounted) {
       await platformProv.fetchPlatforms();
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainLayout()));
+      navigator.pushReplacement(MaterialPageRoute(builder: (_) => const MainLayout()));
     } else if (mounted) {
       setState(() => _errorMessage = 'License key tidak valid atau sudah kadaluarsa');
     }
@@ -113,14 +114,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           decoration: BoxDecoration(
             color: const Color(0xFF18181B),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
+            border: Border.all(color: Colors.white.withValues(alpha:0.08), width: 1),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(19),
             child: Image.asset(
               'assets/images/dracinku.ico',
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const Icon(Icons.movie_creation_rounded, color: Colors.white54, size: 32),
+              errorBuilder: (_, _, _) => const Icon(Icons.movie_creation_rounded, color: Colors.white54, size: 32),
             ),
           ),
         ),
@@ -143,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         Text(
           'Masukkan license key untuk melanjutkan',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withValues(alpha:0.4),
             fontSize: 13,
             height: 1.5,
           ),
@@ -160,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         Text(
           'LICENSE KEY',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withValues(alpha:0.4),
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.4,
@@ -174,8 +175,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: _errorMessage != null
-                  ? Colors.red.withOpacity(0.4)
-                  : Colors.white.withOpacity(0.07),
+                  ? Colors.red.withValues(alpha:0.4)
+                  : Colors.white.withValues(alpha:0.07),
               width: 1,
             ),
           ),
@@ -192,17 +193,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             decoration: InputDecoration(
               hintText: 'XXXX-XXXX-XXXX-XXXX',
               hintStyle: TextStyle(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha:0.2),
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0.5,
               ),
-              prefixIcon: Icon(Icons.key_rounded, color: Colors.white.withOpacity(0.3), size: 20),
+              prefixIcon: Icon(Icons.key_rounded, color: Colors.white.withValues(alpha:0.3), size: 20),
               suffixIcon: IconButton(
                 onPressed: () => setState(() => _obscure = !_obscure),
                 icon: Icon(
                   _obscure ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha:0.3),
                   size: 18,
                 ),
               ),
@@ -244,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
           foregroundColor: const Color(0xFF0A0A0C),
-          disabledBackgroundColor: Colors.white.withOpacity(0.4),
+          disabledBackgroundColor: Colors.white.withValues(alpha:0.4),
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
@@ -264,15 +265,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   Widget _buildDivider() {
     return Row(
       children: [
-        Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.07))),
+        Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha:0.07))),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'atau',
-            style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 12, fontWeight: FontWeight.w500),
+            style: TextStyle(color: Colors.white.withValues(alpha:0.3), fontSize: 12, fontWeight: FontWeight.w500),
           ),
         ),
-        Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.07))),
+        Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha:0.07))),
       ],
     );
   }
@@ -284,7 +285,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         onPressed: () {},
         style: OutlinedButton.styleFrom(
           foregroundColor: Colors.white,
-          side: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
+          side: BorderSide(color: Colors.white.withValues(alpha:0.1), width: 1),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           backgroundColor: const Color(0xFF18181B),
         ),
@@ -292,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset('assets/images/google_logo.png', height: 20, width: 20,
-              errorBuilder: (_, __, ___) => const Icon(Icons.g_mobiledata, size: 24, color: Colors.white70),
+              errorBuilder: (_, _, _) => const Icon(Icons.g_mobiledata, size: 24, color: Colors.white70),
             ),
             const SizedBox(width: 10),
             Text(
@@ -300,7 +301,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withOpacity(0.75),
+                color: Colors.white.withValues(alpha:0.75),
               ),
             ),
           ],
@@ -312,7 +313,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   Widget _buildFooter() {
     return Text(
       'Dengan masuk, kamu menyetujui syarat & ketentuan penggunaan Dracinku.',
-      style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 11, height: 1.5),
+      style: TextStyle(color: Colors.white.withValues(alpha:0.2), fontSize: 11, height: 1.5),
       textAlign: TextAlign.center,
     );
   }

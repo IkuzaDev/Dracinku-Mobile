@@ -41,12 +41,12 @@ class DashboardScreen extends StatelessWidget {
                     Container(
                       width: 72, height: 72,
                       decoration: BoxDecoration(color: _surface, borderRadius: BorderRadius.circular(20), border: Border.all(color: _border)),
-                      child: Icon(Icons.lock_rounded, color: Colors.white.withOpacity(0.2), size: 32),
+                      child: Icon(Icons.lock_rounded, color: Colors.white.withValues(alpha:0.2), size: 32),
                     ),
                     const SizedBox(height: 20),
-                    Text('Masuk untuk melanjutkan', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15, fontWeight: FontWeight.w700)),
+                    Text('Masuk untuk melanjutkan', style: TextStyle(color: Colors.white.withValues(alpha:0.6), fontSize: 15, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 8),
-                    Text('Akses profil, riwayat, dan fitur lainnya', style: TextStyle(color: Colors.white.withOpacity(0.25), fontSize: 12), textAlign: TextAlign.center),
+                    Text('Akses profil, riwayat, dan fitur lainnya', style: TextStyle(color: Colors.white.withValues(alpha:0.25), fontSize: 12), textAlign: TextAlign.center),
                     const SizedBox(height: 28),
                     SizedBox(
                       width: double.infinity,
@@ -72,8 +72,8 @@ class DashboardScreen extends StatelessWidget {
         final username = user['username']?.toString() ?? 'User';
         final userId   = user['id']?.toString() ?? '';
         final isVip    = auth.isVip;
-        final coin     = user['coin'] ?? 0;
-        final ticket   = user['ticket'] ?? 0;
+        final coin     = 0;
+        final ticket   = 0;
         final vipExp   = user['vip_expires_at']?.toString();
         final grad     = _avatarGrad(username);
 
@@ -96,9 +96,9 @@ class DashboardScreen extends StatelessWidget {
 
                     // Stats
                     Row(children: [
-                      _StatCard(label: 'Koin', value: '$coin', icon: Icons.monetization_on_rounded, color: const Color(0xFFF59E0B)),
+                      _StatCard(label: 'Drama', value: '$coin', icon: Icons.monetization_on_rounded, color: const Color(0xFFF59E0B)),
                       const SizedBox(width: 10),
-                      _StatCard(label: 'Tiket', value: '$ticket', icon: Icons.confirmation_num_rounded, color: const Color(0xFF8B5CF6)),
+                      _StatCard(label: 'Episode', value: '$ticket', icon: Icons.confirmation_num_rounded, color: const Color(0xFF8B5CF6)),
                     ]),
 
                     const SizedBox(height: 20),
@@ -122,9 +122,9 @@ class DashboardScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.06),
+                          color: Colors.red.withValues(alpha:0.06),
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: Colors.red.withOpacity(0.2)),
+                          border: Border.all(color: Colors.red.withValues(alpha:0.2)),
                         ),
                         child: Center(child: Text('Keluar', style: TextStyle(color: Colors.red[400], fontSize: 14, fontWeight: FontWeight.w700))),
                       ),
@@ -155,7 +155,7 @@ class DashboardScreen extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: grad),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [BoxShadow(color: grad.first.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8))],
+              boxShadow: [BoxShadow(color: grad.first.withValues(alpha:0.4), blurRadius: 20, offset: const Offset(0, 8))],
             ),
             child: Center(child: Text(username[0].toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900))),
           ),
@@ -166,13 +166,13 @@ class DashboardScreen extends StatelessWidget {
               children: [
                 Text(username, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.3)),
                 const SizedBox(height: 4),
-                Text('ID: $userId', style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 11, fontFamily: 'monospace')),
+                Text('ID: $userId', style: TextStyle(color: Colors.white.withValues(alpha:0.3), fontSize: 11, fontFamily: 'monospace')),
                 const SizedBox(height: 10),
                 Row(children: [
                   _RoleBadge(isVip: isVip),
                   if (isVip && vipExp != null) ...[
                     const SizedBox(width: 6),
-                    Text('s/d ${_fmtDate(vipExp)}', style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 10)),
+                    Text('s/d ${_fmtDate(vipExp)}', style: TextStyle(color: Colors.white.withValues(alpha:0.3), fontSize: 10)),
                   ],
                 ]),
               ],
@@ -205,14 +205,14 @@ class DashboardScreen extends StatelessWidget {
             children: [
               Text('Keluar?', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800)),
               const SizedBox(height: 8),
-              Text('Kamu harus login kembali untuk mengakses akun.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 13, height: 1.5)),
+              Text('Kamu harus login kembali untuk mengakses akun.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withValues(alpha:0.4), fontSize: 13, height: 1.5)),
               const SizedBox(height: 24),
               Row(children: [
                 Expanded(child: GestureDetector(
                   onTap: () => Navigator.pop(ctx, false),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 13),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.06), borderRadius: BorderRadius.circular(12), border: Border.all(color: _border)),
+                    decoration: BoxDecoration(color: Colors.white.withValues(alpha:0.06), borderRadius: BorderRadius.circular(12), border: Border.all(color: _border)),
                     child: const Center(child: Text('Batal', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600))),
                   ),
                 )),
@@ -244,9 +244,9 @@ class _RoleBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isVip ? const Color(0xFF8B5CF6).withOpacity(0.15) : Colors.white.withOpacity(0.05),
+        color: isVip ? const Color(0xFF8B5CF6).withValues(alpha:0.15) : Colors.white.withValues(alpha:0.05),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isVip ? const Color(0xFF8B5CF6).withOpacity(0.4) : Colors.white.withOpacity(0.1)),
+        border: Border.all(color: isVip ? const Color(0xFF8B5CF6).withValues(alpha:0.4) : Colors.white.withValues(alpha:0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -254,7 +254,7 @@ class _RoleBadge extends StatelessWidget {
           if (isVip) ...[Icon(Icons.star_rounded, color: const Color(0xFFA78BFA), size: 12), const SizedBox(width: 4)],
           Text(
             isVip ? 'VIP' : 'Free',
-            style: TextStyle(color: isVip ? const Color(0xFFA78BFA) : Colors.white.withOpacity(0.4), fontSize: 11, fontWeight: FontWeight.w800),
+            style: TextStyle(color: isVip ? const Color(0xFFA78BFA) : Colors.white.withValues(alpha:0.4), fontSize: 11, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -275,9 +275,9 @@ class _VipBanner extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
-            colors: [const Color(0xFF8B5CF6).withOpacity(0.15), const Color(0xFFEC4899).withOpacity(0.1)],
+            colors: [const Color(0xFF8B5CF6).withValues(alpha:0.15), const Color(0xFFEC4899).withValues(alpha:0.1)],
           ),
-          border: Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.3)),
+          border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha:0.3)),
         ),
         child: Row(
           children: [
@@ -329,7 +329,7 @@ class _StatCard extends StatelessWidget {
           children: [
             Container(
               width: 36, height: 36,
-              decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: color.withValues(alpha:0.12), borderRadius: BorderRadius.circular(10)),
               child: Icon(icon, color: color, size: 18),
             ),
             const SizedBox(width: 12),
@@ -337,7 +337,7 @@ class _StatCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, height: 1)),
-                Text(label, style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 11)),
+                Text(label, style: TextStyle(color: Colors.white.withValues(alpha:0.35), fontSize: 11)),
               ],
             ),
           ],
@@ -367,10 +367,10 @@ class _MenuRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.white.withOpacity(0.45), size: 20),
+            Icon(icon, color: Colors.white.withValues(alpha:0.45), size: 20),
             const SizedBox(width: 14),
             Expanded(child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600))),
-            Icon(Icons.chevron_right_rounded, color: Colors.white.withOpacity(0.2), size: 20),
+            Icon(Icons.chevron_right_rounded, color: Colors.white.withValues(alpha:0.2), size: 20),
           ],
         ),
       ),
@@ -384,6 +384,6 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text.toUpperCase(), style: TextStyle(color: Colors.white.withOpacity(0.25), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.4));
+    return Text(text.toUpperCase(), style: TextStyle(color: Colors.white.withValues(alpha:0.25), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.4));
   }
 }

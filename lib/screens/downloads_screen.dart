@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import '../providers/download_provider.dart';
 import 'player_screen.dart';
 
@@ -42,12 +43,12 @@ class DownloadsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: _border),
                     ),
-                    child: Icon(Icons.download_for_offline_outlined, color: Colors.white.withOpacity(0.2), size: 32),
+                    child: Icon(Icons.download_for_offline_outlined, color: Colors.white.withValues(alpha:0.2), size: 32),
                   ),
                   const SizedBox(height: 16),
-                  Text('Belum ada unduhan', style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14, fontWeight: FontWeight.w600)),
+                  Text('Belum ada unduhan', style: TextStyle(color: Colors.white.withValues(alpha:0.4), fontSize: 14, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
-                  Text('Episode yang diunduh akan muncul di sini', style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 12)),
+                  Text('Episode yang diunduh akan muncul di sini', style: TextStyle(color: Colors.white.withValues(alpha:0.2), fontSize: 12)),
                 ],
               ),
             );
@@ -56,11 +57,17 @@ class DownloadsScreen extends StatelessWidget {
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: prov.downloads.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (context, i) {
-              final item = prov.downloads[i] as Map<String, dynamic>;
+              final item   = prov.downloads[i];
+              final taskId = item['id']?.toString() ?? '';
+              final prog   = prov.progress[taskId] ?? 0;
+              final stat   = prov.status[taskId] ?? DownloadTaskStatus.undefined;
+
               return _DownloadTile(
                 item: item,
+                progress: prog,
+                status: stat,
                 onPlay: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => PlayerScreen(
@@ -71,7 +78,7 @@ class DownloadsScreen extends StatelessWidget {
                 onDelete: () async {
                   final confirmed = await _confirmDelete(context, item['title']?.toString() ?? 'episode ini');
                   if (confirmed && context.mounted) {
-                    await prov.deleteDownload(item['id']);
+                    await prov.deleteDownload(taskId);
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: const Text('Unduhan dihapus'),
@@ -103,7 +110,7 @@ class DownloadsScreen extends StatelessWidget {
             children: [
               Container(
                 width: 52, height: 52,
-                decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: Colors.red.withValues(alpha:0.1), shape: BoxShape.circle),
                 child: Icon(Icons.delete_outline_rounded, color: Colors.red[400], size: 26),
               ),
               const SizedBox(height: 16),
@@ -112,7 +119,7 @@ class DownloadsScreen extends StatelessWidget {
               Text(
                 '"$title" akan dihapus dari perangkat.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 13, height: 1.5),
+                style: TextStyle(color: Colors.white.withValues(alpha:0.4), fontSize: 13, height: 1.5),
               ),
               const SizedBox(height: 24),
               Row(
@@ -123,7 +130,7 @@ class DownloadsScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.06),
+                          color: Colors.white.withValues(alpha:0.06),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: _border),
                         ),
@@ -138,9 +145,9 @@ class DownloadsScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.15),
+                          color: Colors.red.withValues(alpha:0.15),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.red.withOpacity(0.3)),
+                          border: Border.all(color: Colors.red.withValues(alpha:0.3)),
                         ),
                         child: Center(child: Text('Hapus', style: TextStyle(color: Colors.red[400], fontSize: 14, fontWeight: FontWeight.w700))),
                       ),
@@ -158,10 +165,12 @@ class DownloadsScreen extends StatelessWidget {
 
 class _DownloadTile extends StatelessWidget {
   final Map<String, dynamic> item;
+  final int progress;
+  final DownloadTaskStatus status;
   final VoidCallback onPlay;
   final VoidCallback onDelete;
 
-  const _DownloadTile({required this.item, required this.onPlay, required this.onDelete});
+  const _DownloadTile({required this.item, required this.progress, required this.status, required this.onPlay, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +178,9 @@ class _DownloadTile extends StatelessWidget {
     final epName    = item['episodeName']?.toString() ?? 'Episode ${(item['episodeIndex'] as int? ?? 0) + 1}';
     final coverUrl  = item['coverUrl']?.toString() ?? item['cover']?.toString() ?? '';
     final filePath  = item['filePath']?.toString() ?? '';
-    final hasFile   = filePath.isNotEmpty;
+    final isDownloading = status == DownloadTaskStatus.running || status == DownloadTaskStatus.enqueued;
+    final isComplete = status == DownloadTaskStatus.complete;
+    final hasFile   = filePath.isNotEmpty || isComplete;
 
     return Container(
       decoration: BoxDecoration(
@@ -177,68 +188,89 @@ class _DownloadTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _border),
       ),
-      child: Row(
+      child: Column(
         children: [
-          // Thumbnail
-          ClipRRect(
-            borderRadius: const BorderRadius.horizontal(left: Radius.circular(15)),
-            child: SizedBox(
-              width: 80, height: 80,
-              child: coverUrl.isNotEmpty
-                  ? Image.network(coverUrl, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _thumbPlaceholder())
-                  : _thumbPlaceholder(),
-            ),
-          ),
+          Row(
+            children: [
+              // Thumbnail
+              ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(15)),
+                child: SizedBox(
+                  width: 80, height: 80,
+                  child: coverUrl.isNotEmpty
+                      ? Image.network(coverUrl, fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => _thumbPlaceholder())
+                      : _thumbPlaceholder(),
+                ),
+              ),
 
-          // Info
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 3),
-                  Text(epName, style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 8),
-                  Row(
+              // Info
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: hasFile ? const Color(0xFF10B981).withOpacity(0.1) : Colors.orange.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: hasFile ? const Color(0xFF34D399).withOpacity(0.3) : Colors.orange.withOpacity(0.3)),
-                        ),
-                        child: Text(
-                          hasFile ? 'Tersimpan' : 'Tidak ditemukan',
-                          style: TextStyle(
-                            color: hasFile ? const Color(0xFF34D399) : Colors.orange,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
+                      Text(title, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 3),
+                      Text(epName, style: TextStyle(color: Colors.white.withValues(alpha:0.4), fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: isDownloading 
+                                  ? Colors.blue.withValues(alpha:0.1) 
+                                  : (hasFile ? const Color(0xFF10B981).withValues(alpha:0.1) : Colors.orange.withValues(alpha:0.1)),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: isDownloading
+                                  ? Colors.blue.withValues(alpha:0.3)
+                                  : (hasFile ? const Color(0xFF34D399).withValues(alpha:0.3) : Colors.orange.withValues(alpha:0.3))),
+                            ),
+                            child: Text(
+                              isDownloading ? 'Mengunduh $progress%' : (hasFile ? 'Tersimpan' : 'Tidak ditemukan'),
+                              style: TextStyle(
+                                color: isDownloading ? Colors.blue : (hasFile ? const Color(0xFF34D399) : Colors.orange),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
+              ),
+
+              // Actions
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _ActionBtn(icon: Icons.play_arrow_rounded, color: Colors.white, onTap: onPlay),
+                    const SizedBox(height: 4),
+                    _ActionBtn(icon: Icons.delete_outline_rounded, color: Colors.red.shade400, onTap: onDelete),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (isDownloading)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(2),
+                child: LinearProgressIndicator(
+                  value: progress / 100,
+                  backgroundColor: Colors.white.withValues(alpha:0.05),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white38),
+                  minHeight: 2,
+                ),
               ),
             ),
-          ),
-
-          // Actions
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _ActionBtn(icon: Icons.play_arrow_rounded, color: Colors.white, onTap: onPlay),
-                const SizedBox(height: 4),
-                _ActionBtn(icon: Icons.delete_outline_rounded, color: Colors.red.shade400, onTap: onDelete),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -247,7 +279,7 @@ class _DownloadTile extends StatelessWidget {
   Widget _thumbPlaceholder() {
     return Container(
       color: const Color(0xFF111114),
-      child: Icon(Icons.movie_outlined, color: Colors.white.withOpacity(0.15), size: 28),
+      child: Icon(Icons.movie_outlined, color: Colors.white.withValues(alpha:0.15), size: 28),
     );
   }
 }
@@ -265,9 +297,9 @@ class _ActionBtn extends StatelessWidget {
       child: Container(
         width: 36, height: 36,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha:0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.15)),
+          border: Border.all(color: color.withValues(alpha:0.15)),
         ),
         child: Icon(icon, color: color, size: 18),
       ),

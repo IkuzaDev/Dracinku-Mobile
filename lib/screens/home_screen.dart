@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _series = items is List ? items : [];
         _pageInfo = res.data['page_info'] as Map<String, dynamic>?;
-        _hasMore = _pageInfo?['has_more'] ?? res.data['hasMore'] ?? false;
+        _hasMore = _pageInfo?['has_more'] ?? res.data['isMore'] ?? false;
         _isFeedLoading = false;
       });
     } else {
@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _series.addAll(items is List ? items : []);
         _pageInfo = res.data['page_info'] as Map<String, dynamic>?;
-        _hasMore = _pageInfo?['has_more'] ?? res.data['hasMore'] ?? false;
+        _hasMore = _pageInfo?['has_more'] ?? res.data['isMore'] ?? false;
         _isFeedLoading = false;
       });
     } else {
@@ -145,11 +145,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.asset(
-              'assets/images/dracinku.png',
+              'assets/images/dracinku.ico',
               width: 32,
               height: 32,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(0.5),
-        child: Container(height: 0.5, color: Colors.white.withOpacity(0.06)),
+        child: Container(height: 0.5, color: Colors.white.withValues(alpha:0.06)),
       ),
     );
   }
@@ -204,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSpacing: 12,
         ),
         itemCount: 12,
-        itemBuilder: (_, __) => const _SkeletonCard(),
+        itemBuilder: (_, _) => const _SkeletonCard(),
       );
     }
 
@@ -270,12 +270,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Row(
                   children: [
-                    Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.06))),
+                    Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha:0.06))),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text('End of list', style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1)),
+                      child: Text('End of list', style: TextStyle(color: Colors.white.withValues(alpha:0.2), fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1)),
                     ),
-                    Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.06))),
+                    Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha:0.06))),
                   ],
                 ),
               ),
@@ -302,7 +302,7 @@ class _PlatformPill extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF18181B),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
+          border: Border.all(color: Colors.white.withValues(alpha:0.08), width: 1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -314,7 +314,7 @@ class _PlatformPill extends StatelessWidget {
             const SizedBox(width: 6),
             Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFF34D399), shape: BoxShape.circle)),
             const SizedBox(width: 4),
-            Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white.withOpacity(0.4), size: 16),
+            Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white.withValues(alpha:0.4), size: 16),
           ],
         ),
       ),
@@ -336,14 +336,14 @@ class _LangButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF18181B),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
+          border: Border.all(color: Colors.white.withValues(alpha:0.08), width: 1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(langCode, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
             const SizedBox(width: 3),
-            Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white.withOpacity(0.4), size: 14),
+            Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white.withValues(alpha:0.4), size: 14),
           ],
         ),
       ),
@@ -392,14 +392,14 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
                         color: isActive ? Colors.white : const Color(0xFF18181B),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isActive ? Colors.white : Colors.white.withOpacity(0.08),
+                          color: isActive ? Colors.white : Colors.white.withValues(alpha:0.08),
                           width: 1,
                         ),
                       ),
                       child: Text(
                         t['name']?.toString() ?? '',
                         style: TextStyle(
-                          color: isActive ? const Color(0xFF0A0A0C) : Colors.white.withOpacity(0.45),
+                          color: isActive ? const Color(0xFF0A0A0C) : Colors.white.withValues(alpha:0.45),
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -410,7 +410,7 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
               },
             ),
           ),
-          Container(height: 0.5, color: Colors.white.withOpacity(0.06)),
+          Container(height: 0.5, color: Colors.white.withValues(alpha:0.06)),
         ],
       ),
     );
@@ -446,7 +446,7 @@ class _SkeletonCardState extends State<_SkeletonCard> with SingleTickerProviderS
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, __) => Column(
+      builder: (_, _) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
@@ -497,14 +497,14 @@ class _EmptyState extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0xFF18181B),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.07), width: 1),
+              border: Border.all(color: Colors.white.withValues(alpha:0.07), width: 1),
             ),
-            child: Icon(Icons.movie_outlined, color: Colors.white.withOpacity(0.2), size: 26),
+            child: Icon(Icons.movie_outlined, color: Colors.white.withValues(alpha:0.2), size: 26),
           ),
           const SizedBox(height: 14),
-          Text('Belum ada konten', style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13, fontWeight: FontWeight.w600)),
+          Text('Belum ada konten', style: TextStyle(color: Colors.white.withValues(alpha:0.3), fontSize: 13, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
-          Text('Coba ganti tab atau platform', style: TextStyle(color: Colors.white.withOpacity(0.15), fontSize: 12)),
+          Text('Coba ganti tab atau platform', style: TextStyle(color: Colors.white.withValues(alpha:0.15), fontSize: 12)),
         ],
       ),
     );
