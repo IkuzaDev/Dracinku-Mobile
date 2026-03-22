@@ -43,7 +43,11 @@ jobs:
 
       - name: Build Android APK
         run: |
-          if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
+          BUILD_TYPE="${{ github.event.inputs.build_type }}"
+          # Default ke debug jika di-trigger oleh push (bukan manual)
+          BUILD_TYPE="${BUILD_TYPE:-debug}"
+          
+          if [ "$BUILD_TYPE" = "release" ]; then
             flutter build apk --release
           else
             flutter build apk --debug
@@ -52,7 +56,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk-${{ github.event.inputs.build_type }}
+          name: android-apk-${{ github.event.inputs.build_type || 'debug' }}
           path: build/app/outputs/flutter-apk/app-*.apk
           if-no-files-found: error
 
@@ -66,45 +70,95 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.0'
+          xcode-version: 'latest-stable'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      - name: Cache Flutter dependencies
+      - name: Cache pub dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.pub-cache
-            build/ios
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
-            ${{ runner.os }}-flutter-
+            ${{ runner.os }}-pub-
 
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Install iOS Simulator
+      - name: Install CocoaPods dependencies
         run: |
-          # Install iOS simulator components
-          sudo xcodebuild -runFirstLaunch
-          
-          # Check available simulators
-          xcrun simctl list devices available
+          cd ios
+          pod install --repo-update
 
       - name: Build iOS
         run: |
-          if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
-            flutter build ipa --debug --no-codesign
+          BUILD_TYPE="${{ github.event.inputs.build_type }}"
+          BUILD_TYPE="${BUILD_TYPE:-debug}"
+
+          if [ "$BUILD_TYPE" = "release" ]; then
+            # Release: build xcarchive lalu export IPA tanpa codesign
+            flutter build ipa --release --no-codesign
           else
-            flutter build ios --debug --no-codesign
+            # Debug: build untuk simulator, tidak butuh codesign sama sekali
+            flutter build ios --debug --simulator
           fi
 
-      - name: Upload iOS artifact
+      - name: Export IPA dari xcarchive (release only)
+        if: ${{ github.event.inputs.build_type == 'release' }}
+        run: |
+          cat > /tmp/ExportOptions.plist << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>ad-hoc</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>compileBitcode</key>
+            <false/>
+            <key>thinning</key>
+            <string>&lt;none&gt;</string>
+          </dict>
+          </plist>
+          EOF
+
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportPath build/ios/ipa \
+            -exportOptionsPlist /tmp/ExportOptions.plist \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: List build output (debug)
+        run: |
+          BUILD_TYPE="${{ github.event.inputs.build_type || 'debug' }}"
+          if [ "$BUILD_TYPE" = "release" ]; then
+            find build/ios/ipa -type f 2>/dev/null || echo "Tidak ada file IPA"
+          else
+            find build/ios/iphonesimulator -type f -name "*.app" 2>/dev/null || \
+            find build/ios -name "Runner.app" 2>/dev/null || \
+            echo "Build selesai (simulator .app tidak diupload)"
+          fi
+
+      - name: Upload IPA artifact (release only)
+        if: ${{ github.event.inputs.build_type == 'release' }}
         uses: actions/upload-artifact@v4
         with:
-          name: ios-build-${{ github.event.inputs.build_type }}
+          name: ios-ipa-release
           path: build/ios/ipa/*.ipa
-          if-no-files-found: ignore
+          if-no-files-found: error
+
+      - name: Upload simulator build artifact (debug only)
+        if: ${{ github.event.inputs.build_type != 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-debug
+          path: build/ios/iphonesimulator/Runner.app
+          if-no-files-found: warn
